@@ -13,7 +13,7 @@ uses [React](https://facebook.github.io/react/).
 
 ![GitHub Desktop screenshot - Windows](https://cloud.githubusercontent.com/assets/359239/26094502/a1f56d02-3a5d-11e7-8799-23c7ba5e5106.png)
 
-## Where can I get it?
+## Where can I get it??
 
 Download the official installer for your operating system:
 
