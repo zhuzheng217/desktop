@@ -49,6 +49,7 @@ Installers for various Linux distributions can be found on the
 [`shiftkey/desktop`](https://github.com/shiftkey/desktop) fork.
 
 this is a new line!
+this is a second new line! 
 
 Arch Linux users can install the latest version from the
 [AUR](https://aur.archlinux.org/packages/github-desktop-bin/).
