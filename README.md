@@ -59,7 +59,7 @@ And to see what the team is working on currently and in the near future, check o
 
 ## I have a problem with GitHub Desktop
 
-Note: The [GitHub Desktop Code of Conduct](https://github.com/desktop/desktop/blob/development/CODE_OF_CONDUCT.md) applies in all interactions relating to the GitHub Desktop project.
+Note: The [GitHub Desktop Code of Conduct](https://github.com/desktop/desktop/blob/development/CODE_OF_CONDUCT.md) applies to all interactions relating to the GitHub Desktop project.
 
 First, please search the [open issues](https://github.com/desktop/desktop/issues?q=is%3Aopen)
 and [closed issues](https://github.com/desktop/desktop/issues?q=is%3Aclosed)
