@@ -83,6 +83,7 @@ import {
   IAPIBranch,
   IAPIRepository,
   getEndpointForRepository,
+  IAPIPullRequest,
 } from '../api'
 import { shell } from '../app-shell'
 import {
@@ -5271,18 +5272,47 @@ export class AppStore extends TypedBaseStore<IAppState> {
 
   public async _checkoutPullRequest(
     repository: Repository,
-    pullRequest: PullRequest
+    pullRequest: IAPIPullRequest | PullRequest
   ): Promise<void> {
+    let prNumber: number | null = null
+    let ownerLogin: string | null = null
+    let head: {
+      cloneURL: string
+      ref: string
+    } | null = null
+
+    if (pullRequest instanceof PullRequest) {
+      if (pullRequest.head.gitHubRepository.cloneURL === null) {
+        return
+      }
+
+      prNumber = pullRequest.pullRequestNumber
+      ownerLogin = pullRequest.author
+      head = {
+        cloneURL: pullRequest.head.gitHubRepository.cloneURL,
+        ref: pullRequest.head.ref,
+      }
+    } else {
+      if (pullRequest.head.repo === null) {
+        return
+      }
+
+      prNumber = pullRequest.number
+      ownerLogin = pullRequest.user.login
+      head = {
+        cloneURL: pullRequest.head.repo.clone_url,
+        ref: pullRequest.head.ref,
+      }
+    }
+
     const gitHubRepository = forceUnwrap(
       `Cannot checkout a PR if the repository doesn't have a GitHub repository`,
       repository.gitHubRepository
     )
-    const head = pullRequest.head
-    const isRefInThisRepo =
-      head.gitHubRepository.cloneURL === gitHubRepository.cloneURL
+    const isRefInThisRepo = head.cloneURL === gitHubRepository.cloneURL
     const isRefInUpstream =
       gitHubRepository.parent !== null &&
-      head.gitHubRepository.cloneURL === gitHubRepository.parent.cloneURL
+      head.cloneURL === gitHubRepository.parent.cloneURL
 
     if (isRefInThisRepo || isRefInUpstream) {
       const gitStore = this.gitStoreCache.get(repository)
@@ -5341,11 +5371,9 @@ export class AppStore extends TypedBaseStore<IAppState> {
     } else {
       const cloneURL = forceUnwrap(
         "This pull request's clone URL is not populated but should be",
-        head.gitHubRepository.cloneURL
+        head.cloneURL
       )
-      const remoteName = forkPullRequestRemoteName(
-        head.gitHubRepository.owner.login
-      )
+      const remoteName = forkPullRequestRemoteName(ownerLogin)
       const remotes = await getRemotes(repository)
       const remote =
         remotes.find(r => r.name === remoteName) ||
@@ -5364,7 +5392,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
 
       await this._fetchRemote(repository, remote, FetchType.UserInitiatedTask)
 
-      const localBranchName = `pr/${pullRequest.pullRequestNumber}`
+      const localBranchName = `pr/${prNumber}`
       const existingBranch = this.getLocalBranch(repository, localBranchName)
 
       if (existingBranch === null) {
