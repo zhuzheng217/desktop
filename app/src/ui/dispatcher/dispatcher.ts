@@ -1412,7 +1412,7 @@ export class Dispatcher {
    */
   private getRepositoryFromPullRequest(
     pullRequest: IAPIPullRequest
-  ): Repository | null {
+  ): RepositoryWithGitHubRepository | null {
     const state = this.appStore.getState()
     const repositories = state.repositories
     const headUrl = pullRequest.head.repo && pullRequest.head.repo.clone_url
@@ -1440,7 +1440,7 @@ export class Dispatcher {
   private doesRepositoryMatchUrl(
     repo: Repository | CloningRepository,
     url: string
-  ): repo is Repository {
+  ): repo is RepositoryWithGitHubRepository {
     if (repo instanceof Repository && isRepositoryWithGitHubRepository(repo)) {
       const originRepoUrl = repo.gitHubRepository.htmlURL
       const upstreamRepoUrl =
@@ -1486,14 +1486,16 @@ export class Dispatcher {
     pullRequest: IAPIPullRequest
   ) {
     // Find the repository where the PR is created in Desktop.
-    let repository: Repository | null = await this.getRepositoryFromPullRequest(
+    let repository: RepositoryWithGitHubRepository | null = await this.getRepositoryFromPullRequest(
       pullRequest
     )
 
     if (repository !== null) {
       await this.selectRepository(repository)
     } else {
-      repository = await this.openOrCloneRepository(url)
+      repository = (await this.openOrCloneRepository(
+        url
+      )) as RepositoryWithGitHubRepository
     }
 
     if (repository === null) {
@@ -1846,7 +1848,7 @@ export class Dispatcher {
 
   /** Checks out a PR whose ref exists locally or in a forked repo. */
   public async checkoutPullRequest(
-    repository: Repository,
+    repository: RepositoryWithGitHubRepository,
     pullRequest: PullRequest
   ): Promise<void> {
     return this.appStore._checkoutPullRequest(repository, pullRequest)
